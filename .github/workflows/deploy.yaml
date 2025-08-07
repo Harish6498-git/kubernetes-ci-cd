@@ -41,7 +41,12 @@ jobs:
           helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
             --namespace ingress-nginx --create-namespace \
             --set controller.publishService.enabled=true
-
+      - name: Wait for ingress-nginx controller to be ready
+        run: |
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=Ready pods \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=180s
       - name: Deploy Application Manifests
         run: |
           kubectl apply -f kubernetes-manifests/deployment.yaml
